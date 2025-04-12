@@ -1,0 +1,8 @@
+﻿namespace TicketSystem.Service
+{
+    public interface IS3Service
+    {
+        Task<string> UploadFileAsync(IFormFile file, string fileName);
+    }
+
+}
