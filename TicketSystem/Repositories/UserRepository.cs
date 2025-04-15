@@ -226,7 +226,7 @@ namespace TicketSystem.Repositories
         public async Task<UserVM> GetByName(string name)
         {
             var users = await _context.Users
-                  .Where(u => u.UserName.Contains(name))
+                  .Where(u => u.UserName != null && u.UserName.Contains(name))
                  .Select(user => new UserVM
                  {
                      Id = user.Id,
@@ -288,13 +288,13 @@ namespace TicketSystem.Repositories
                     _context.UserRoles.Add(new IdentityUserRole<int>
                     {
                         UserId = entity.Id,
-                        RoleId = (int)entity.RoleID
+                        RoleId = (int)entity.RoleID!
                     }) ;
                 }
                 else
                 {
                     // Nếu User đã có Role, cập nhật RoleId
-                    userRole.RoleId = (int)entity.RoleID;
+                    userRole.RoleId = (int)entity.RoleID!;
                 }
                 _context.Users.Update(user);
                 await _context.SaveChangesAsync();

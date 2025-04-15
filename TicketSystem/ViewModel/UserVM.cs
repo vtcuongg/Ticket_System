@@ -6,9 +6,9 @@ namespace TicketSystem.ViewModel
     {
 
         public int Id { get; set; }
-        public string UserName { get; set; } = string.Empty;
+        public string? UserName { get; set; } = string.Empty;
         [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        public string? Email { get; set; } = string.Empty;
         [RegularExpression("^0[0-9]{9}$", ErrorMessage = "Phone number must be 10 digits and start with 0.")]
 
         public string? PhoneNumber { get; set; }

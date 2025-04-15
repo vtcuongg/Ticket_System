@@ -76,7 +76,7 @@ namespace TicketSystem.Controllers
             }
         }
         [HttpGet("Name")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetUserByName(string name)
         {
             try
@@ -176,7 +176,7 @@ namespace TicketSystem.Controllers
             var user = await _dbContext.Users.FindAsync(userId);
             if (user == null) return NotFound();
 
-            var fileName = $"avatars/{Guid.NewGuid()}_{avatar.FileName}";
+            var fileName = $"avatars/{userId}/{Guid.NewGuid()}_{avatar.FileName}";
             var avatarUrl = await s3Service.UploadFileAsync(avatar, fileName);
 
             user.Avatar = avatarUrl;

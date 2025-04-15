@@ -55,14 +55,14 @@ namespace TicketSystem.Controllers
 
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> UpdateTicket(TicketVM ticket)
+        public async Task<IActionResult> UpdateTicket(TicketVM ticket, [FromServices] IS3Service s3Service)
         {
             try
             {
                 if (ticket == null)
                     return BadRequest(new { message = "Dữ liệu không hợp lệ" });
 
-                await _ticketRepository.Update(ticket);
+                await _ticketRepository.Update(ticket,s3Service);
                 return Ok(new { message = "Cập nhật Ticket thành công" });
             }
             catch (KeyNotFoundException ex)

@@ -49,7 +49,9 @@ namespace TicketSystem.Repositories
             {
                 authClaims.Add(new Claim(ClaimTypes.Role, role.ToString()));
             }
-            var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
+            var secret = configuration["JWT:Secret"]
+             ?? throw new InvalidOperationException("JWT secret is missing in configuration");
+            var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
             var token = new JwtSecurityToken(
                     issuer: configuration["JWT:ValidIssuer"],
                     audience: configuration["JWT:ValidAudience"],

@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using TicketSystem.Data;
 using TicketSystem.Repositories.Interface;
+using TicketSystem.Service;
+using TicketSystem.ViewModel;
 
 namespace TicketSystem.Repositories
 {
@@ -35,7 +37,7 @@ namespace TicketSystem.Repositories
             await base.OnConnectedAsync();
         }
 
-        public override async Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var userId = GetUserId();
             if (userId == 0)
@@ -55,15 +57,6 @@ namespace TicketSystem.Repositories
 
             await base.OnDisconnectedAsync(exception);
         }
-
-        public async Task SendMessage(int senderId, int receiverId, string content)
-        {
-            if (string.IsNullOrWhiteSpace(content)) return;
-            await Clients.User(receiverId.ToString())
-                .SendAsync("ReceiveMessage",content);
-            await _chatRepository.SendMessageAsync(senderId, receiverId, content);
-        }
-
         private int GetUserId()
         {
             var userId = Context.UserIdentifier;
@@ -77,8 +70,9 @@ namespace TicketSystem.Repositories
             {
                 message.IsRead = true;
                 await _context.SaveChangesAsync();
-                await Clients.User(message.SenderID.ToString())
-                    .SendAsync("MessageRead", message.MessageID);
+                var senderId = message.SenderID?.ToString()
+               ?? throw new InvalidOperationException("SenderID is null");
+                await Clients.User(senderId).SendAsync("MessageRead", message.MessageID);
             }
         }
     }

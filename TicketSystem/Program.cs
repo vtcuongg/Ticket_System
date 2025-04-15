@@ -15,7 +15,8 @@ using TicketSystem.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+var jwtSecret = builder.Configuration["JWT:Secret"]
+    ?? throw new InvalidOperationException("JWT:Secret is not configured.");
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -68,7 +69,7 @@ builder.Services.AddAuthentication(options => {
         ValidateAudience = true,
         ValidAudience = builder.Configuration["JWT:ValidAudience"],
         ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
     };
     options.Events = new JwtBearerEvents
     {

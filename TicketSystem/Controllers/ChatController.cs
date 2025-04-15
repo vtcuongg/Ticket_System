@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Data;
+using TicketSystem.Repositories;
 using TicketSystem.Repositories.Interface;
+using TicketSystem.Service;
 using TicketSystem.ViewModel;
 
 namespace TicketSystem.Controllers
@@ -30,6 +33,20 @@ namespace TicketSystem.Controllers
         {
             var users = await _chatRepository.GetChatUsersWithLastMessageAsync(userId);
             return Ok(users);
+        }
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> SendMessage(SendMessageRequestVM sendMessageRequestVM , IS3Service s3Service)
+        {
+            try
+            {
+                await _chatRepository.SendMessageAsync(sendMessageRequestVM,s3Service);
+                return Ok(new { message = "Thêm tin nhắn thành công" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi thêm Message", error = ex.Message });
+            }
         }
     }
 }

@@ -43,7 +43,7 @@ namespace TicketSystem.Repositories
 
                 foreach (var file in entity.Attachments)
                 {
-                    var fileName = $"attachments/{ticket.TicketID}/{Guid.NewGuid()}_{file.FileName}";
+                    var fileName = $"TicketAttachments/{ticket.TicketID}/{Guid.NewGuid()}_{file.FileName}";
                     var fileUrl = await s3Service.UploadFileAsync(file, fileName);
 
                     ticket.Attachments.Add(new TicketAttachment
@@ -88,20 +88,44 @@ namespace TicketSystem.Repositories
         //    return tickets != null ? _mapper.Map<List<TicketVM>>(tickets) : null;
         //}
 
-        public async Task Update(TicketVM entity)
+        public async Task Update(TicketVM entity, IS3Service s3Service)
         {
-            var existingTicket = await _context.Tickets.FindAsync(entity.TicketID);
-            if (existingTicket != null)
-            {
-                _mapper.Map(entity, existingTicket);
-                _context.Tickets.Update(existingTicket);
-                await _context.SaveChangesAsync();
+            var existingTicket = await _context.Tickets
+         .Include(t => t.Attachments) 
+         .FirstOrDefaultAsync(t => t.TicketID == entity.TicketID);
 
-            }
-            else
+            if (existingTicket == null)
+                throw new KeyNotFoundException($"Không tìm thấy Ticket với ID = {entity.TicketID}");
+            _mapper.Map(entity, existingTicket);
+            if (existingTicket.Attachments != null && existingTicket.Attachments.Any())
             {
-                throw new KeyNotFoundException($"Không tìm thấy User với ID = {entity.TicketID}");
+                foreach (var oldAttachment in existingTicket.Attachments)
+                {
+                    await s3Service.DeleteFileAsync(oldAttachment.FileUrl); // Xóa trên S3
+                }
+                _context.TicketAttachments.RemoveRange(existingTicket.Attachments);
             }
+
+            // Thêm các file đính kèm mới (nếu có)
+            if (entity.Attachments != null && entity.Attachments.Any())
+            {
+                existingTicket.Attachments = new List<TicketAttachment>();
+
+                foreach (var file in entity.Attachments)
+                {
+                    var fileName = $"attachments/{existingTicket.TicketID}/{Guid.NewGuid()}_{file.FileName}";
+                    var fileUrl = await s3Service.UploadFileAsync(file, fileName);
+
+                    existingTicket.Attachments.Add(new TicketAttachment
+                    {
+                        FileName = file.FileName,
+                        FileUrl = fileUrl,
+                        UploadedAt = DateTime.UtcNow
+                    });
+                }
+            }
+            _context.Tickets.Update(existingTicket);
+            await _context.SaveChangesAsync();
         }
         public async Task UpdateStatus(string ticketId, string newStatus)
         {

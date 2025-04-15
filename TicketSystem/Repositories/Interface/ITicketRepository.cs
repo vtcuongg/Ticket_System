@@ -9,7 +9,7 @@ namespace TicketSystem.Repositories.Interface
         Task<TicketVM?> GetById(string id);
         Task<IEnumerable<TicketVM>?> GetByDepartmentId(int id);
         Task Add(TicketVM entity,IS3Service s3Service);
-        Task Update(TicketVM entity);
+        Task Update(TicketVM entity, IS3Service s3Service);
         Task Delete(string id);
         Task UpdateStatus(string TicketId, string newStatus);
         Task UpdatePriority(string TicketId, string newPriority);

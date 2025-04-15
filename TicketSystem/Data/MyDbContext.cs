@@ -17,6 +17,7 @@ namespace TicketSystem.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<TicketAttachment> TicketAttachments { get; set; }
+        public DbSet<MessageAttachment> MessageAttachments { get; set; }
 
         public MyDbContext(DbContextOptions<MyDbContext> options):base(options)
         {

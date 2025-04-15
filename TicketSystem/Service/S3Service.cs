@@ -17,7 +17,30 @@ namespace TicketSystem.Service
             _settings = settings.Value;
             _s3Client = new AmazonS3Client(_settings.AccessKey, _settings.SecretKey, RegionEndpoint.GetBySystemName(_settings.Region));
         }
+        public async Task DeleteFileAsync(string fileUrl)
+        {
+            try
+            {
+                var uri = new Uri(fileUrl);
+                var key = uri.AbsolutePath.TrimStart('/'); // "attachments/..."
+                var deleteRequest = new DeleteObjectRequest
+                {
+                    BucketName = _settings.BucketName,
+                    Key = key
+                };
 
+                var response = await _s3Client.DeleteObjectAsync(deleteRequest);
+
+                if (response.HttpStatusCode != System.Net.HttpStatusCode.NoContent)
+                {
+                    throw new Exception("Failed to delete file from S3.");
+                }
+            }
+            catch (AmazonS3Exception ex)
+            {
+                throw new Exception("Error deleting file from S3: " + ex.Message, ex);
+            }
+        }
         public async Task<string> UploadFileAsync(IFormFile file, string fileName)
         {
             try
