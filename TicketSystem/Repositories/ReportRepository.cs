@@ -37,27 +37,30 @@ namespace TicketSystem.Repositories
 
             return result;
         }
-        public async Task<object> GetTicketSummary(int? month, int? year,int DepartmentId)
+        public async Task<object> GetTicketSummary(DateTime? startDate, DateTime? endDate, int departmentId)
         {
             var query = _context.Tickets.AsQueryable();
 
-            // Lọc theo năm và tháng nếu có
-            if (year.HasValue)
+            // Lọc theo khoảng thời gian nếu có
+            if (startDate.HasValue)
             {
-                query = query.Where(t => t.CreatedAt.Year == year);
+                query = query.Where(t => t.CreatedAt >= startDate.Value);
             }
 
-            if (month.HasValue)
+            if (endDate.HasValue)
             {
-                query = query.Where(t => t.CreatedAt.Month == month);
+                query = query.Where(t => t.CreatedAt <= endDate.Value);
             }
-            query=query.Where(t => t.DepartmentID== DepartmentId);
+
+            // Lọc theo phòng ban
+            query = query.Where(t => t.DepartmentID == departmentId);
+
             // Lấy tổng số ticket
             var totalTicket = await query.CountAsync();
 
-            // Lấy kết quả tổng hợp theo trạng thái
+            // Lấy tổng hợp theo trạng thái
             var ticketSummary = await query
-                .GroupBy(t => new { t.Status, Year = t.CreatedAt.Year, Month = t.CreatedAt.Month  })
+                .GroupBy(t => new { t.Status, Year = t.CreatedAt.Year, Month = t.CreatedAt.Month })
                 .Select(g => new SumaryTicketVM
                 {
                     Status = g.Key.Status,
@@ -69,20 +72,16 @@ namespace TicketSystem.Repositories
                 .ThenByDescending(t => t.TicketMonth)
                 .ToListAsync();
 
-            // Nếu không có kết quả, trả về danh sách trống cho ticketSummary
-            if (ticketSummary == null)
-            {
-                ticketSummary = new List<SumaryTicketVM>();
-            }
+            // Nếu ticketSummary null thì gán danh sách trống
+            ticketSummary ??= new List<SumaryTicketVM>();
 
-            // Trả về kết quả gồm tổng số ticket và tổng hợp theo trạng thái
+            // Trả kết quả
             return new
             {
                 TotalTicket = totalTicket,
                 TicketSummary = ticketSummary
             };
-        
-    }
+        }
 
         public async Task<object> GetUserSumary(int DepartmentId)
         {

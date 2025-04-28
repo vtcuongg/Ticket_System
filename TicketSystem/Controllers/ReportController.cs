@@ -25,9 +25,9 @@ namespace TicketSystem.Controllers
 
         [HttpGet("SumaryTicket")]
         [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> GetSumaryTicket( int? month , int? year , int DepartmentId)
+        public async Task<IActionResult> GetSumaryTicket(DateTime? startDate, DateTime? endDate, int DepartmentId)
         {
-            var sumaryTicket = await _reportRepository.GetTicketSummary(month,year, DepartmentId);
+            var sumaryTicket = await _reportRepository.GetTicketSummary(startDate, endDate, DepartmentId);
             return Ok(sumaryTicket);
 
         }
