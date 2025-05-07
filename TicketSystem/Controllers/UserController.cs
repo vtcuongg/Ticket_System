@@ -25,7 +25,7 @@ namespace TicketSystem.Controllers
             _dbContext = dbContext; 
         }
         [HttpGet]
-        [Authorize(Roles="Admin")]
+        [Authorize]
         public async Task<IActionResult> GetAllUsers()
         {
             try
