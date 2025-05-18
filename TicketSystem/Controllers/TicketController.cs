@@ -37,7 +37,7 @@ namespace TicketSystem.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> AddTicket(TicketVM ticket, [FromServices] IS3Service s3Service)
+        public async Task<IActionResult> AddTicket([FromForm] TicketVM ticket, [FromServices] IS3Service s3Service)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace TicketSystem.Controllers
 
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> UpdateTicket(TicketVM ticket, [FromServices] IS3Service s3Service)
+        public async Task<IActionResult> UpdateTicket([FromForm] TicketVM ticket, [FromServices] IS3Service s3Service)
         {
             try
             {
@@ -148,7 +148,7 @@ namespace TicketSystem.Controllers
             }
         }
         [HttpGet("search")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> SearchTickets([FromQuery] string? TicketId, [FromQuery] string? title, [FromQuery] int? day, [FromQuery] int? month, [FromQuery] int? year
             ,[FromQuery] int? createdBy, [FromQuery] int? departmentId, [FromQuery] int? assignto)
         {
@@ -156,10 +156,10 @@ namespace TicketSystem.Controllers
             {
                 var tickets = await _ticketRepository.SearchTickets(TicketId, title, day,month, year, createdBy, departmentId,assignto);
 
-                if (!tickets.Any())
-                {
-                    return NotFound(new { message = "Không tìm thấy ticket nào phù hợp." });
-                }
+                //if (!tickets.Any())
+                //{
+                //    return NotFound(new { message = "Không tìm thấy ticket nào phù hợp." });
+                //}
 
                 return Ok(tickets);
             }

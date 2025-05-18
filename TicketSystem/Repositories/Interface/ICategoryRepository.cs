@@ -6,6 +6,7 @@ namespace TicketSystem.Repositories.Interface
     {
         Task<IEnumerable<CategoryVM>> GetAll();
         Task<CategoryVM?> GetById(int id);
+        Task<IEnumerable<CategoryVM>> GetByDepartmentId(int departmentId);
         Task Add(CategoryVM entity);
         Task Update(CategoryVM entity);
         Task Delete(int id);

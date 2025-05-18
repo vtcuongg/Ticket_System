@@ -48,5 +48,12 @@ namespace TicketSystem.Controllers
                 return StatusCode(500, new { message = "Lỗi khi thêm Message", error = ex.Message });
             }
         }
+        [HttpPut("mark-as-read/{messageId}")]
+        public async Task<IActionResult> MarkMessageAsRead(int messageId)
+        {
+            var result = await _chatRepository.MarkMessageAsReadAsync(messageId);
+            if (!result) return NotFound("Message not found");
+            return Ok("Message marked as read");
+        }
     }
 }

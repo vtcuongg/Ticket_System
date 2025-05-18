@@ -11,6 +11,7 @@ namespace TicketSystem.ViewModel
         public int CategoryID { get; set; }
         public string CategoryName { get; set; } = string.Empty;
         public int DepartmentID { get; set; }
+       public string DepartmentName { get; set; } = string.Empty;
 
     }
 }

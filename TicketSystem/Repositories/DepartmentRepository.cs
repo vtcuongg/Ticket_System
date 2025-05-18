@@ -36,7 +36,9 @@ namespace TicketSystem.Repositories
 
         public async Task<IEnumerable<DepartmentVM>> GetAll()
         {
-            var departments = await _context.Departments.ToListAsync();
+            var departments = await _context.Departments
+                .OrderBy(d => d.DepartmentID) 
+                 .ToListAsync(); 
             return _mapper.Map<IEnumerable<DepartmentVM>>(departments);
         }
 

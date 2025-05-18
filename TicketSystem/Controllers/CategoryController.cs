@@ -19,7 +19,6 @@ namespace TicketSystem.Controllers
         }
         [HttpGet]
         [Authorize]
-
         public async Task<IActionResult> GetAllCategory()
         {
             try
@@ -50,7 +49,13 @@ namespace TicketSystem.Controllers
                 return StatusCode(500, new { message = "Lỗi khi lấy danh mục", error = ex.Message });
             }
         }
-
+        [HttpGet("by-department/{departmentId}")]
+        [Authorize]
+        public async Task<IActionResult> GetByDepartment(int departmentId)
+        {
+            var categories = await _categoryRepository.GetByDepartmentId(departmentId);
+            return Ok(categories);
+        }
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddCategory(CategoryVM category)

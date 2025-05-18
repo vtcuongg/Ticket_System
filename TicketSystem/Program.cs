@@ -19,7 +19,6 @@ var jwtSecret = builder.Configuration["JWT:Secret"]
     ?? throw new InvalidOperationException("JWT:Secret is not configured.");
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
@@ -46,6 +45,16 @@ builder.Services.AddSwaggerGen(option =>
             },
             new string[]{}
         }
+    });
+});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ConfigureCore", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 builder.Services.AddCors(option => option.AddDefaultPolicy(policy => policy.AllowAnyOrigin().
@@ -86,7 +95,6 @@ builder.Services.AddAuthentication(options => {
     };
 });
 builder.Services.AddAuthorization();
-// 🔹 Đăng ký DbContext
 builder.Services.AddDbContext<MyDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddAutoMapper(typeof(ApplicationMapper));
@@ -104,23 +112,19 @@ builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IS3Service, S3Service>();
-// Thêm SignalR vào dịch vụ
 builder.Services.AddSignalR();
-// Load cấu hình từ appsettings.Development.json
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
 builder.Services.Configure<AwsS3Settings>(builder.Configuration.GetSection("AWS"));
 var app = builder.Build();
-// Map SignalR Hub
 app.MapHub<ChatHub>("/chathub");
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("ConfigureCore");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

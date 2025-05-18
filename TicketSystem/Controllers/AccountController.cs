@@ -21,13 +21,31 @@ namespace TicketSystem.Controllers
         [HttpPost("SignIn")]
         public async Task<IActionResult> SignIn(SignInVM entity)
         {
-            var result = await _accountRepository.SignIn(entity);
-            if (string.IsNullOrEmpty(result))
+
+            if (entity == null || string.IsNullOrEmpty(entity.Email) || string.IsNullOrEmpty(entity.Password))
             {
-                return Unauthorized();
+                return BadRequest(new { message = "Email và mật khẩu không được để trống." });
             }
-            var user = await _userRepository.GetByEmail(entity.Email ?? "");
-            return Ok(new { message = "Success",User=user, token = result });
+
+            var token = await _accountRepository.SignIn(entity);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized(new { message = "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin." });
+            }
+
+            var user = await _userRepository.GetByEmail(entity.Email);
+            if (user == null)
+            {
+                return NotFound(new { message = "Không tìm thấy người dùng." });
+            }
+
+            return Ok(new
+            {
+                message = "Đăng nhập thành công.",
+                user,
+                token
+            });
         }
 
     }
