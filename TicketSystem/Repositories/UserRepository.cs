@@ -75,6 +75,15 @@ namespace TicketSystem.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task DeleteById(int id)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+        }
 
         public async Task<IEnumerable<UserVM>> GetAll()
         {
@@ -207,6 +216,7 @@ namespace TicketSystem.Repositories
                    .Select(p => p.DepartmentName).FirstOrDefault(),
                      Status = user.Status,
                      CreatedAt = user.CreatedAt,
+                     Password=user.PasswordHash,
                      RoleID = _context.UserRoles
                          .Where(ur => ur.UserId == user.Id)
                          .Select(ur => ur.RoleId)
@@ -265,45 +275,79 @@ namespace TicketSystem.Repositories
             var existingUser = await _context.Users.FindAsync(entity.Id);
             if (existingUser != null)
             {
-                var user = new User
+                existingUser.UserName = entity.UserName;
+                existingUser.Email = entity.Email;
+                existingUser.PhoneNumber = entity.PhoneNumber;
+                existingUser.DateOfBirth = entity.DateOfBirth;
+                existingUser.Gender = entity.Gender;
+                existingUser.Address = entity.Address;
+                existingUser.Avatar = entity.Avatar;
+                existingUser.NationalID = entity.NationalID;
+                existingUser.DepartmentID = entity.DepartmentID;
+                existingUser.Status = entity.Status;
+                if (entity.Password == "User@123")
                 {
-                    UserName = existingUser.UserName,
-                    Email = existingUser.Email,
-                    PhoneNumber = existingUser.PhoneNumber,
-                    DateOfBirth = existingUser.DateOfBirth,
-                    Gender = existingUser.Gender,
-                    Address = existingUser.Address,
-                    Avatar = existingUser.Avatar,
-                    NationalID = existingUser.NationalID,
-                    DepartmentID = existingUser.DepartmentID,
-                    Status = existingUser.Status,
-                    CreatedAt = existingUser.CreatedAt,
-                };
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+                    var resetResult = await _userManager.ResetPasswordAsync(existingUser, token, entity.Password);
+                    if (!resetResult.Succeeded)
+                    {
+                        throw new Exception("Failed to reset password: " + string.Join(", ", resetResult.Errors.Select(e => e.Description)));
+                    }
+                }
+                else if  (!String.IsNullOrEmpty(entity.Password))
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+                    var resetResult = await _userManager.ResetPasswordAsync(existingUser, token, entity.Password);
+                    if (!resetResult.Succeeded)
+                    {
+                        throw new Exception("Failed to reset password: " + string.Join(", ", resetResult.Errors.Select(e => e.Description)));
+                    }
+                }
                 var userRole = await _context.UserRoles
-                .FirstOrDefaultAsync(ur => ur.UserId == entity.Id);
+                    .FirstOrDefaultAsync(ur => ur.UserId == entity.Id);
 
                 if (userRole == null)
                 {
-                    // Nếu User không có Role, bạn có thể thêm Role mới cho họ
                     _context.UserRoles.Add(new IdentityUserRole<int>
                     {
                         UserId = entity.Id,
                         RoleId = (int)entity.RoleID!
-                    }) ;
+                    });
                 }
                 else
                 {
-                    // Nếu User đã có Role, cập nhật RoleId
                     userRole.RoleId = (int)entity.RoleID!;
                 }
-                _context.Users.Update(user);
-                await _context.SaveChangesAsync();
 
+                await _context.SaveChangesAsync();
             }
             else
             {
                 throw new KeyNotFoundException($"Không tìm thấy User với ID = {entity.Id}");
             }
+        }
+        public async Task UpdateStatus(int userId, String newStatus)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"Không tìm thấy User với ID = {userId}");
+            }
+
+            user.Status = newStatus;
+            await _context.SaveChangesAsync();
+        }
+        public async Task<IdentityResult> ChangeUserPassword(int userId, string currentPassword, string newPassword)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString()); 
+            if (user == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = $"User with ID {userId} not found." });
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+
+            return result;
         }
     }
 }

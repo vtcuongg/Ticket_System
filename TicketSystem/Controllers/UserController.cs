@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -102,7 +103,7 @@ namespace TicketSystem.Controllers
                 if (users == null)
                     return NotFound(new { message = $"Không tìm thấy User với DepartmentID = {id}" });
 
-                return Ok(new { data = users });
+                return Ok(new { data = new { users } });
             }
             catch (Exception ex)
             {
@@ -165,6 +166,20 @@ namespace TicketSystem.Controllers
                 return StatusCode(500, new { message = "Lỗi khi xóa user", error = ex.Message });
             }
         }
+        [HttpDelete("DeleteById")] 
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUserById(int id)
+        {
+            try
+            {
+                await _userRepository.DeleteById(id);
+                return Ok(new { message = "Xóa user thành công" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi xóa user", error = ex.Message });
+            }
+        }
         [Authorize]
         [HttpPost("update-avatar")]
         public async Task<IActionResult> UpdateAvatar(IFormFile avatar, [FromServices] IS3Service s3Service)
@@ -183,6 +198,68 @@ namespace TicketSystem.Controllers
             await _dbContext.SaveChangesAsync();
 
             return Ok(new { avatarUrl });
+        }
+
+        [Authorize]
+        [HttpPatch("update-status")]
+        public async Task<IActionResult> UpdateStatus(int userid , string newStatus)
+        {
+            try
+            {
+                await _userRepository.UpdateStatus(userid, newStatus);
+                return Ok(new { Message = "User status updated successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while updating the user status.", Detail = ex.Message });
+            }
+        }
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword(int userid ,string currentPass,string newPass,string confirmPass)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); 
+            }
+            if (newPass != confirmPass)
+            {
+                ModelState.AddModelError("ConfirmNewPassword", "The new password and confirmation password do not match.");
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var result = await _userRepository.ChangeUserPassword(
+                   userid,
+                    currentPass,
+                   newPass
+                );
+
+                if (result.Succeeded)
+                {
+                    return Ok(new { Message = "Password changed successfully." });
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return BadRequest(ModelState);
+                }
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while changing password.", Detail = ex.Message });
+            }
         }
     }
 }

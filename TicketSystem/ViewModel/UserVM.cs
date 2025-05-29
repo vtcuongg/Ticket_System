@@ -24,6 +24,7 @@ namespace TicketSystem.ViewModel
         public string? DepartmentName { get; set; }
         public int? RoleID { get; set; }
         public string? RoleName { get; set; }
+        public string? Password { get; set; }
         public string Status { get; set; } = "Active";
         public DateTime CreatedAt { get; set; }
 
