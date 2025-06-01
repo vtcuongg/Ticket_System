@@ -35,10 +35,8 @@ namespace TicketSystem.Repositories
 
         public async Task<IEnumerable<CategoryVM>> GetAll()
         {
-            //var categories = await _context.Categories.ToListAsync();
-            //return _mapper.Map<IEnumerable<CategoryVM>>(categories);
              var categories = await _context.Categories
-            .Include(c => c.Department) // Eager loading Department
+            .Include(c => c.Department) 
             .ToListAsync();
 
             return categories.Select(c => new CategoryVM

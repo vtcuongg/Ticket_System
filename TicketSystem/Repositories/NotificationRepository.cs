@@ -24,15 +24,35 @@ namespace TicketSystem.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<NotificationVM>> GetByUserId(int Userid)
+        public async Task<List<NotificationVM_1>> GetByUserId(int Userid)
         {
+
             var notifications = await _context.Notifications
-            .Where(t => t.ReceiverID == Userid) 
-            .ToListAsync();
+        .Where(t => t.ReceiverID == Userid)
+        .Join(
+            _context.Users, 
+            notification => notification.SenderID,
+            user => user.Id, 
+            (notification, user) => new NotificationVM_1
+            {
+                NotificationID = notification.NotificationID,
+                SenderID = notification.SenderID,
+                ReceiverID = notification.ReceiverID,
+                Message = notification.Message,
+                TicketID = notification.TicketID,
+                CreatedAt = notification.CreatedAt,
+                IsRead = notification.IsRead,
+                SenderName = user.UserName,
+                SenderAvatar = user.Avatar
+            }
+        )
+        .ToListAsync();
+
             return notifications.Any()
-          ? _mapper.Map<List<NotificationVM>>(notifications)
-          : new List<NotificationVM>(); // Trả về danh sách rỗng thay vì null
+                ? notifications 
+                : new List<NotificationVM_1>();
 
         }
+
     }
 }

@@ -148,19 +148,13 @@ namespace TicketSystem.Controllers
             }
         }
         [HttpGet("search")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> SearchTickets([FromQuery] string? TicketId, [FromQuery] string? title, [FromQuery] int? day, [FromQuery] int? month, [FromQuery] int? year
             ,[FromQuery] int? createdBy, [FromQuery] int? departmentId, [FromQuery] int? assignto)
         {
             try
             {
                 var tickets = await _ticketRepository.SearchTickets(TicketId, title, day,month, year, createdBy, departmentId,assignto);
-
-                //if (!tickets.Any())
-                //{
-                //    return NotFound(new { message = "Không tìm thấy ticket nào phù hợp." });
-                //}
-
                 return Ok(tickets);
             }
             catch (Exception ex)

@@ -51,7 +51,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("ConfigureCore", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins("http://localhost:3000", "https://ticket-system-fe-nu.vercel.app")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -117,13 +117,15 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
 builder.Services.Configure<AwsS3Settings>(builder.Configuration.GetSection("AWS"));
+
 var app = builder.Build();
 app.MapHub<ChatHub>("/chathub");
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.MapGet("/", () => Results.Ok("Backend is running!"));
 app.UseCors("ConfigureCore");
 app.UseHttpsRedirection();
 app.UseAuthentication();

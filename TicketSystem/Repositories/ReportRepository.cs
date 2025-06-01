@@ -20,7 +20,6 @@ namespace TicketSystem.Repositories
         {
             var result = await(from u in _context.Users
                                join d in _context.Departments on u.DepartmentID equals d.DepartmentID
-                               // Lọc theo DepartmentID (truyền vào như tham số)
                                where u.DepartmentID == DepartmentId
                                join tfa in _context.TicketFeedbackAssignees on u.Id equals tfa.AssignedTo into tfaGroup
                                from tfa in tfaGroup.DefaultIfEmpty()
@@ -41,7 +40,6 @@ namespace TicketSystem.Repositories
         {
             var query = _context.Tickets.AsQueryable();
 
-            // Lọc theo khoảng thời gian nếu có
             if (startDate.HasValue)
             {
                 query = query.Where(t => t.CreatedAt >= startDate.Value);
@@ -52,13 +50,13 @@ namespace TicketSystem.Repositories
                 query = query.Where(t => t.CreatedAt <= endDate.Value);
             }
 
-            // Lọc theo phòng ban
+         
             query = query.Where(t => t.DepartmentID == departmentId);
 
-            // Lấy tổng số ticket
+        
             var totalTicket = await query.CountAsync();
 
-            // Lấy tổng hợp theo trạng thái
+          
             var ticketSummary = await query
                 .GroupBy(t => new { t.Status, Year = t.CreatedAt.Year, Month = t.CreatedAt.Month })
                 .Select(g => new SumaryTicketVM
@@ -72,10 +70,10 @@ namespace TicketSystem.Repositories
                 .ThenByDescending(t => t.TicketMonth)
                 .ToListAsync();
 
-            // Nếu ticketSummary null thì gán danh sách trống
+           
             ticketSummary ??= new List<SumaryTicketVM>();
 
-            // Trả kết quả
+          
             return new
             {
                 TotalTicket = totalTicket,

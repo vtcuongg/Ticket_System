@@ -7,7 +7,7 @@ namespace TicketSystem.Data
     {
         [Key]
         
-        [DatabaseGenerated(DatabaseGeneratedOption.None)] // Không tự động tăng
+        [DatabaseGenerated(DatabaseGeneratedOption.None)] 
         [Required, StringLength(50)]
         public string? TicketID { get; set; }
 

@@ -22,7 +22,7 @@ namespace TicketSystem.Service
             try
             {
                 var uri = new Uri(fileUrl);
-                var key = uri.AbsolutePath.TrimStart('/'); // "attachments/..."
+                var key = uri.AbsolutePath.TrimStart('/'); 
                 var deleteRequest = new DeleteObjectRequest
                 {
                     BucketName = _settings.BucketName,
@@ -67,7 +67,6 @@ namespace TicketSystem.Service
             }
             catch (AmazonS3Exception ex)
             {
-                // Có thể log thêm lỗi ở đây
                 throw new Exception("Error uploading file to S3: " + ex.Message, ex);
             }
         }

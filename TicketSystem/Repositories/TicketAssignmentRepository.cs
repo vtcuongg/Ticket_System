@@ -22,7 +22,7 @@ namespace TicketSystem.Repositories
             bool isExist = await _context.TicketAssignments
                                  .AnyAsync(ta => ta.TicketID == entity.TicketID && ta.AssignedTo == entity.AssignedTo);
 
-            if (!isExist) // Nếu chưa tồn tại, thì thêm mới
+            if (!isExist) 
             {
                 var ticketAssignment = _mapper.Map<TicketAssignment>(entity);
                 await _context.AddAsync(ticketAssignment);
@@ -38,7 +38,7 @@ namespace TicketSystem.Repositories
         {
             var existingAssignments = _context.TicketAssignments.Where(t => t.TicketID == ticketId);
             _context.TicketAssignments.RemoveRange(existingAssignments);
-            // Thêm mới danh sách AssignedTo
+           
             var newAssignments = assignedToList.Select(userId => new TicketAssignment
             {
                 TicketID = ticketId,

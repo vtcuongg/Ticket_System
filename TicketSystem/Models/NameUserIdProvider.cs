@@ -7,7 +7,6 @@ namespace TicketSystem.Models
     {
         public string GetUserId(HubConnectionContext connection)
         {
-            // Lấy ID từ Claim "NameIdentifier" (thường là user.Id)
             var userId= connection.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
             {

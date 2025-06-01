@@ -45,12 +45,12 @@ namespace TicketSystem.Repositories
             {
                 user.Avatar = "https://ticketsystem.bucket.s3.ap-southeast-2.amazonaws.com/avatars/avatar-df.png";
             }
-            // Create the user with the provided password
+           
             var result = await _userManager.CreateAsync(user, entity.PasswordHash ?? "");
 
             if (result.Succeeded)
             {
-                // If the user was created successfully, assign the role (optional)
+              
                 if (entity.RoleID.HasValue)
                 {
                     var role = await _roleManager.FindByIdAsync(entity.RoleID.ToString() ?? "");
@@ -115,7 +115,7 @@ namespace TicketSystem.Repositories
                                   ur => ur.RoleId,
                                   r => r.Id,
                                   (ur, r) => r.Name)
-                            .FirstOrDefault() // Chỉ lấy role đầu tiên
+                            .FirstOrDefault() 
                })
                .ToListAsync();
             return _mapper.Map<IEnumerable<UserVM>>(users);
@@ -152,7 +152,7 @@ namespace TicketSystem.Repositories
                                   ur => ur.RoleId,
                                   r => r.Id,
                                   (ur, r) => r.Name)
-                            .FirstOrDefault() // Chỉ lấy role đầu tiên
+                            .FirstOrDefault()
                })
                .ToListAsync();
             return _mapper.Map<IEnumerable<UserVM>>(users);
@@ -189,7 +189,7 @@ namespace TicketSystem.Repositories
                                   ur => ur.RoleId,
                                   r => r.Id,
                                   (ur, r) => r.Name)
-                            .FirstOrDefault() // Chỉ lấy role đầu tiên
+                            .FirstOrDefault() 
                })
                .FirstOrDefaultAsync();
             return _mapper.Map<UserVM>(users);
@@ -227,7 +227,7 @@ namespace TicketSystem.Repositories
                                     ur => ur.RoleId,
                                     r => r.Id,
                                     (ur, r) => r.Name)
-                              .FirstOrDefault() // Chỉ lấy role đầu tiên
+                              .FirstOrDefault() 
                  })
                  .FirstOrDefaultAsync();
             return _mapper.Map<UserVM>(users);

@@ -36,7 +36,6 @@ namespace TicketSystem.Repositories
         {
             var ticket = _mapper.Map<Ticket>(entity);
             ticket.TicketID = await GenerateTicketCode();
-            // Xử lý file đính kèm nếu có
             if (entity.Attachments != null && entity.Attachments.Any())
             {
                 ticket.Attachments = new List<TicketAttachment>();
@@ -68,25 +67,12 @@ namespace TicketSystem.Repositories
             }
         }
 
-        //public async Task<IEnumerable<TicketVM>> GetAll()
-        //{
-        //    var tickets = await _context.Tickets.ToListAsync();
-        //    return _mapper.Map<IEnumerable<TicketVM>>(tickets);
-        //}
-
         public async Task<TicketVM?> GetById(string id)
         {
             var ticket = await _context.Tickets.FindAsync(id);
             return ticket != null ? _mapper.Map<TicketVM>(ticket) : null;
         }
 
-        //public async Task<IEnumerable<TicketVM>?> GetByUserId(int UserId)
-        //{
-        //    var tickets = await _context.Tickets
-        //                        .Where(t => t.CreatedBy == UserId)
-        //                        .ToListAsync();
-        //    return tickets != null ? _mapper.Map<List<TicketVM>>(tickets) : null;
-        //}
 
         public async Task Update(TicketVM entity, IS3Service s3Service)
         {
@@ -101,12 +87,11 @@ namespace TicketSystem.Repositories
             {
                 foreach (var oldAttachment in existingTicket.Attachments)
                 {
-                    await s3Service.DeleteFileAsync(oldAttachment.FileUrl); // Xóa trên S3
+                    await s3Service.DeleteFileAsync(oldAttachment.FileUrl); 
                 }
                 _context.TicketAttachments.RemoveRange(existingTicket.Attachments);
             }
 
-            // Thêm các file đính kèm mới (nếu có)
             if (entity.Attachments != null && entity.Attachments.Any())
             {
                 existingTicket.Attachments = new List<TicketAttachment>();
@@ -133,7 +118,7 @@ namespace TicketSystem.Repositories
             if (existingTicket != null)
             {
                 existingTicket.Status = newStatus;
-                existingTicket.UpdatedAt = DateTime.UtcNow; // Cập nhật thời gian sửa đổi
+                existingTicket.UpdatedAt = DateTime.UtcNow; 
 
                 _context.Tickets.Update(existingTicket);
                 await _context.SaveChangesAsync();
@@ -149,7 +134,7 @@ namespace TicketSystem.Repositories
             if (existingTicket != null)
             {
                 existingTicket.Priority = newPriority;
-                existingTicket.UpdatedAt = DateTime.UtcNow; // Cập nhật thời gian sửa đổi
+                existingTicket.UpdatedAt = DateTime.UtcNow; 
 
                 _context.Tickets.Update(existingTicket);
                 await _context.SaveChangesAsync();
@@ -165,7 +150,7 @@ namespace TicketSystem.Repositories
             if (existingTicket != null)
             {
                 existingTicket.IsFeedBack = newIsFeedBack;
-                existingTicket.UpdatedAt = DateTime.UtcNow; // Cập nhật thời gian sửa đổi
+                existingTicket.UpdatedAt = DateTime.UtcNow; 
 
                 _context.Tickets.Update(existingTicket);
                 await _context.SaveChangesAsync();

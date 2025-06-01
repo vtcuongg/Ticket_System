@@ -8,7 +8,7 @@ namespace TicketSystem.ViewModel
     {
         public int FeedbackID { get; set; }
         public string? TicketID { get; set; }
-        public int? CreatedBy { get; set; } // Người tạo feedback
+        public int? CreatedBy { get; set; } 
         public int Rating { get; set; }
         public string? Comment { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
