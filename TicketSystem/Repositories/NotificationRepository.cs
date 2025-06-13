@@ -46,6 +46,7 @@ namespace TicketSystem.Repositories
                 SenderAvatar = user.Avatar
             }
         )
+        .OrderByDescending(n => n.CreatedAt)
         .ToListAsync();
 
             return notifications.Any()

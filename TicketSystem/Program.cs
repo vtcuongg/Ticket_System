@@ -51,10 +51,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("ConfigureCore", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://ticket-system-fe-nu.vercel.app")
+        policy.WithOrigins("http://localhost:3000", "https://ticket-system-fe-nu.vercel.app", "http://localhost:3001")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
+
     });
 });
 builder.Services.AddCors(option => option.AddDefaultPolicy(policy => policy.AllowAnyOrigin().

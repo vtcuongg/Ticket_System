@@ -75,5 +75,23 @@ namespace TicketSystem.Repositories
                 await Clients.User(senderId).SendAsync("MessageRead", message.MessageID);
             }
         }
+        public async Task SendMessage(string messageContent)
+        {
+            var userId = GetUserId();
+            if (userId == 0)
+            {
+                throw new InvalidOperationException("User is not authenticated.");
+            }
+            await Clients.All.SendAsync("NewMessageSignal", messageContent);
+        }
+        public async Task SendNotification()
+        {
+            var userId = GetUserId();
+            if (userId == 0)
+            {
+                throw new InvalidOperationException("User is not authenticated.");
+            }
+            await Clients.All.SendAsync("NewNotificationSignal");
+        }
     }
 }

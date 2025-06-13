@@ -230,7 +230,9 @@ namespace TicketSystem.Repositories
                             Url = g.FileUrl
                         }).ToList(),
 
-                }).ToList();
+                })
+                .OrderByDescending(n => n.CreatedAt)
+                .ToList();
             return tickets;
 
         }
