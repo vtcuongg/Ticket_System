@@ -47,6 +47,17 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.User.AllowedUserNameCharacters =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ áàảãạâấầẩẫậăắằẳẵặ" +
+        "éèẻẽẹêếềểễệ" +
+        "íìỉĩị" +
+        "óòỏõọôốồổỗộơớờởỡợ" +
+        "úùủũụưứừửữự" +
+        "ýỳỷỹỵ" +
+        "đĐ ";
+});
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ConfigureCore", policy =>
