@@ -69,14 +69,9 @@ namespace TicketSystem.Controllers
         }
 
         [HttpPost("assign-users")]
-        [Authorize(Roles = "Manager")]
+        [Authorize]
         public async Task<IActionResult> AssignUsersToTicket([FromBody] AssignUsersRequest request)
         {
-            if (request.AssignedToList == null || !request.AssignedToList.Any())
-            {
-                return BadRequest("Danh sách AssignedTo không được trống.");
-            }
-
             await _ticketAssignmentRepository.AssignUsersToTicket(request.TicketID ?? "", request.AssignedToList);
             return Ok(new { message = "Cập nhật danh sách AssignedTo thành công." });
         }

@@ -17,7 +17,7 @@ namespace TicketSystem.Controllers
             this._ticketRepository = ticketRepository;
         }
         [HttpGet("ByDepartmentId/{DepartmentId}")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize]
         public async Task<IActionResult> GetTicketByDepartmentId(int DepartmentId)
         {
             try

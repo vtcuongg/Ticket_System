@@ -20,6 +20,7 @@ namespace TicketSystem.ViewModel
         public DateTime? DueDate { get; set; }
         public Boolean? IsFeedBack { get; set; }
         public List<IFormFile>? Attachments { get; set; }
+        public Boolean? isUpdateFile { get; set; }
 
     }
 }

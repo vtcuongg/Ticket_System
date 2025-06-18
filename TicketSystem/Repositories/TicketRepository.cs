@@ -77,23 +77,34 @@ namespace TicketSystem.Repositories
         public async Task Update(TicketVM entity, IS3Service s3Service)
         {
             var existingTicket = await _context.Tickets
-         .Include(t => t.Attachments) 
-         .FirstOrDefaultAsync(t => t.TicketID == entity.TicketID);
+        .Include(t => t.Attachments)
+        .FirstOrDefaultAsync(t => t.TicketID == entity.TicketID);
 
             if (existingTicket == null)
                 throw new KeyNotFoundException($"Không tìm thấy Ticket với ID = {entity.TicketID}");
             _mapper.Map(entity, existingTicket);
-            if (existingTicket.Attachments != null && existingTicket.Attachments.Any())
+            if (entity.isUpdateFile== true)
             {
-                foreach (var oldAttachment in existingTicket.Attachments)
+                if (existingTicket.Attachments != null && existingTicket.Attachments.Any())
                 {
-                    await s3Service.DeleteFileAsync(oldAttachment.FileUrl); 
+                    foreach (var oldAttachment in existingTicket.Attachments)
+                    {
+                        await s3Service.DeleteFileAsync(oldAttachment.FileUrl);
+                    }
+                    _context.TicketAttachments.RemoveRange(existingTicket.Attachments);
                 }
-                _context.TicketAttachments.RemoveRange(existingTicket.Attachments);
             }
-
+           
             if (entity.Attachments != null && entity.Attachments.Any())
             {
+                if (existingTicket.Attachments != null && existingTicket.Attachments.Any())
+                {
+                    foreach (var oldAttachment in existingTicket.Attachments)
+                    {
+                        await s3Service.DeleteFileAsync(oldAttachment.FileUrl);
+                    }
+                    _context.TicketAttachments.RemoveRange(existingTicket.Attachments);
+                }
                 existingTicket.Attachments = new List<TicketAttachment>();
 
                 foreach (var file in entity.Attachments)
@@ -109,7 +120,7 @@ namespace TicketSystem.Repositories
                     });
                 }
             }
-            _context.Tickets.Update(existingTicket);
+             _context.Tickets.Update(existingTicket);
             await _context.SaveChangesAsync();
         }
         public async Task UpdateStatus(string ticketId, string newStatus)
@@ -215,6 +226,7 @@ namespace TicketSystem.Repositories
                     IsFeedBack = group.Key.IsFeedBack,
                     AssignedUsers = group
                         .Where(g => g.AssignmentID != null)
+                         .DistinctBy(g => g.AssignmentID)
                         .Select(g => new AssignmentVM
                         {
                             AssignmentID = g.AssignmentID,
@@ -224,6 +236,7 @@ namespace TicketSystem.Repositories
                         }).ToList(),
                     Attachments = group
                         .Where(x => x.FileName != null && x.FileUrl != null)
+                        .DistinctBy(x => x.FileName)
                         .Select(g => new AttachmentVM
                         {
                             FileName = g.FileName,
