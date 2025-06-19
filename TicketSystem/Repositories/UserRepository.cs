@@ -316,7 +316,13 @@ namespace TicketSystem.Repositories
                 }
                 else
                 {
-                    userRole.RoleId = (int)entity.RoleID!;
+                    _context.UserRoles.Remove(userRole);
+                   
+                    _context.UserRoles.Add(new IdentityUserRole<int>
+                    {
+                        UserId = entity.Id,
+                        RoleId = (int)entity.RoleID!
+                    });
                 }
 
                 await _context.SaveChangesAsync();
