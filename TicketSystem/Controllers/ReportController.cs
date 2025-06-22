@@ -15,7 +15,7 @@ namespace TicketSystem.Controllers
             this._reportRepository = reportRepository;
         }
         [HttpGet("RatingReport")]
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         public async Task<IActionResult> GetRatingReport(int DepartmentId)
         {
           var ratingReport=   await _reportRepository.GetRatingReport(DepartmentId);
